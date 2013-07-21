@@ -69,7 +69,7 @@ public class PullToRefreshListView extends PullToRefreshAdapterViewBase<ListView
 		 * the header/footer views won't show so we use the normal method.
 		 */
 		ListAdapter adapter = mRefreshableView.getAdapter();
-		if (!mListViewExtrasEnabled || !getShowViewWhileRefreshing() || null == adapter || adapter.isEmpty()) {
+		if (!mListViewExtrasEnabled || !getShowViewWhileRefreshing() || null == adapter) {
 			super.onRefreshing(doScroll);
 			return;
 		}
@@ -331,7 +331,47 @@ public class PullToRefreshListView extends PullToRefreshAdapterViewBase<ListView
 		public void setEmptyViewInternal(View emptyView) {
 			super.setEmptyView(emptyView);
 		}
+		
+		@Override
+		public boolean onInterceptTouchEvent(MotionEvent ev)
+		{
+			final int action = ev.getAction();
+			if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP)
+			{
+				// Release the drag.
+				// startTouchX = 0;
+				// startTouchY = 0;
+				// verticalScroll = false;
+				// horizontalScroll = false;
+				return super.onInterceptTouchEvent(ev);
+			}
 
+			switch (action)
+			{
+			case MotionEvent.ACTION_DOWN:
+				mLastMotionX = ev.getX();
+				mLastMotionY = ev.getY();
+				break;
+
+			case MotionEvent.ACTION_MOVE:
+				final float y = ev.getY();
+				final float dy = y - mLastMotionY;
+				final float yDiff = Math.abs(dy);
+				final float xDiff = Math.abs(ev.getX() - mLastMotionX);
+
+				if (xDiff > mTouchSlop && (xDiff > yDiff))
+				{
+					mLastMotionY = y;
+					return false;
+				}
+				break;
+			}
+			return super.onInterceptTouchEvent(ev);
+		}
+
+		private int		mTouchSlop;
+		private float	mLastMotionX;
+		private float	mLastMotionY;
 	}
 
 }
