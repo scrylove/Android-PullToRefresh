@@ -195,10 +195,10 @@ public abstract class LoadingLayout extends FrameLayout implements ILoadingLayou
 	public final int getContentSize() {
 		switch (mScrollDirection) {
 			case HORIZONTAL:
-				return mInnerLayout.getWidth();
+				return mInnerLayout.getMeasuredWidth();
 			case VERTICAL:
 			default:
-				return mInnerLayout.getHeight();
+				return mInnerLayout.getMeasuredHeight();
 		}
 	}
 
